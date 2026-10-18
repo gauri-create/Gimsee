@@ -1,61 +1,34 @@
 import sqlite3
-con = sqlite3.connect("AIassistant.db")
-cursor = con.cursor()
+from datetime import datetime
 
-# query = """
-# CREATE TABLE IF NOT EXISTS sys_command (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     name TEXT NOT NULL UNIQUE,
-#     path TEXT NOT NULL
-# )
-# """
-# cursor.execute(query)
+DB_PATH = "data/assistant_memory.db"
 
-# query = """
-# CREATE TABLE IF NOT EXISTS web_command (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT,
-#     name TEXT NOT NULL UNIQUE,
-#     url TEXT NOT NULL
-# )
-# """
-# cursor.execute(query)
-# # Delete all records
-# cursor.execute("DELETE FROM sys_command;")
-# cursor.execute("DELETE FROM web_command;")
+def get_connection():
+    return sqlite3.connect(DB_PATH)
 
-# cursor.execute("DELETE FROM sys_command WHERE name=?",
-#                ("chrome",))
-# query = """
-#      INSERT INTO sys_command VALUES(
-#      null, 
-#      'excel',
-#      'C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE'
-#      )
-# """
-# cursor.execute(query)
+def init_db():
+    conn = get_connection()
+    cursor = conn.cursor()
 
-# web_commands = (
-#     ("linkedin", "https://www.linkedin.com//in//gauribelokar"),
-    
-# )
-
-# cursor.executemany(
-#     "INSERT OR IGNORE INTO web_command (name, url) VALUES (?, ?)",
-#     web_commands
-#     )
-
-cursor.execute("DELETE FROM web_command WHERE name= ?",
-               ("spotify",))
-
-query = """
-    INSERT INTO web_command VALUES(
-    null, 
-   'spotify',
-   'https://open.spotify.com'
+    # Conversations
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS conversations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_input TEXT,
+        assistant_response TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
-"""
-cursor.execute(query)
+    """)
 
+    # Habits tracking
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS habits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        command TEXT,
+        hour INTEGER,
+        frequency INTEGER DEFAULT 1
+    )
+    """)
 
-con.commit()
-con.close()
+    conn.commit()
+    conn.close()
